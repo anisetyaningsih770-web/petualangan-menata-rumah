@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petualangan Menata Rumah</title>
+<style>
+:root{
+  --ink:#2b2a4c; --muted:#5b5a7a; --bg:#eaf6ff; --card:#ffffff;
+  --blue:#4f8ac4; --blue-d:#2c5d94; --green:#43a65a; --green-d:#2c7a3f;
+  --orange:#ff9a3c; --orange-d:#c9661a; --pink:#ff8fb1; --yellow:#ffd54f; --red:#e5575b;
+  --r:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Trebuchet MS","Segoe UI","Comic Sans MS",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:18px;line-height:1.45;-webkit-text-size-adjust:100%}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+h1,h2,h3{margin:0 0 .4em;line-height:1.2}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:0 6px 0 rgba(44,93,148,.12),0 10px 24px rgba(44,93,148,.10);padding:22px}
+.btn{font:inherit;font-weight:700;font-size:1.05rem;min-height:54px;padding:10px 24px;border-radius:16px;border:0;cursor:pointer;color:#fff;background:var(--blue);box-shadow:0 5px 0 var(--blue-d);transition:transform .08s,box-shadow .08s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-d)}
+.btn:focus-visible,.item:focus-visible,input:focus-visible{outline:4px solid #ffb300;outline-offset:2px}
+.btn.green{background:var(--green);box-shadow:0 5px 0 var(--green-d)}
+.btn.orange{background:var(--orange);box-shadow:0 5px 0 var(--orange-d)}
+.btn.pink{background:#e8638f;box-shadow:0 5px 0 #a8365f}
+.btn.gray{background:#8b93a7;box-shadow:0 5px 0 #5f677a}
+.btn.small{min-height:44px;font-size:.95rem;padding:6px 14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+.hidden{display:none!important}
+input[type=text]{font:inherit;font-size:1.15rem;width:100%;min-height:54px;padding:10px 16px;border-radius:14px;border:3px solid #b9d3ee;background:#fff;color:var(--ink)}
+label{font-weight:700;display:block;margin-bottom:4px}
+.err{color:var(--red);font-weight:700;min-height:1.5em}
+
+/* ---- Start ---- */
+#screen-start{background:linear-gradient(#bfe6ff,#eaf6ff 55%,#d6f0c8)}
+.start-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center}
+.start-grid h1{font-size:2.5rem;color:var(--blue-d)}
+.sub{font-size:1.3rem;color:var(--muted);margin-bottom:16px}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.kelasrow{display:grid;grid-template-columns:1fr 130px;gap:12px;margin-bottom:12px}
+.houseart svg{width:100%;height:auto;display:block}
+.linkbtn{background:none;border:0;color:var(--blue-d);text-decoration:underline;font:inherit;cursor:pointer;margin-top:12px;padding:6px}
+
+/* ---- Materi ---- */
+.materi{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.materi .illus{background:#f3fbff;border-radius:16px;border:3px dashed #b9d3ee;padding:8px}
+.materi svg{width:100%;height:auto;display:block}
+.kata{font-size:2.4rem;color:var(--orange-d);font-weight:800}
+.contoh{background:#fff7dc;border-radius:12px;padding:10px 14px;font-weight:700;margin-top:10px}
+.note{background:#e8f6ea;border-left:6px solid var(--green);padding:8px 12px;border-radius:8px;margin-top:10px;font-size:.95rem}
+.dots{display:flex;gap:6px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
+.dots i{width:14px;height:14px;border-radius:50%;background:#c9d8e8;display:block}
+.dots i.on{background:var(--orange)}
+.navrow{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:16px}
+
+/* ---- Rooms ---- */
+.roomgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin:16px 0}
+.roomcard{border:0;text-align:left;font:inherit;color:var(--ink);cursor:pointer;border-radius:22px;padding:18px;box-shadow:0 6px 0 rgba(0,0,0,.14);transition:transform .1s}
+.roomcard:hover{transform:translateY(-3px)}
+.roomcard .em{font-size:3rem;line-height:1}
+.roomcard h3{font-size:1.5rem;margin-top:6px}
+.roomcard .st{font-weight:700}
+.mini{height:12px;background:rgba(255,255,255,.7);border-radius:8px;overflow:hidden;margin-top:8px}
+.mini i{display:block;height:100%;background:var(--green);width:0}
+.rc0{background:#ffe8b8}.rc1{background:#e5dcff}.rc2{background:#c9f1ec}.rc3{background:#ffd9d2}
+
+/* ---- Game ---- */
+#screen-game{background:#f3faff}
+.topbar{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.12);display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:8px 14px}
+.roomtitle{font-size:1.35rem;font-weight:800;color:var(--blue-d)}
+.who{font-weight:700;color:var(--muted)}
+.score{font-weight:800;background:#fff3c4;padding:6px 14px;border-radius:30px;font-size:1.15rem}
+.prog{flex:1;min-width:170px}
+.prog .bar{height:14px;background:#dde9f5;border-radius:10px;overflow:hidden;margin-top:3px}
+.prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#56c271,#9be15d);transition:width .4s}
+.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-areas:"ins ins" "scene side" "bottom bottom";gap:12px;padding:12px;max-width:1360px;margin:0 auto}
+.instruction{grid-area:ins;background:#fff;border:4px solid var(--yellow);border-radius:18px;padding:12px 18px;font-size:1.7rem;font-weight:800;color:var(--ink);text-align:center;letter-spacing:.3px}
+.scenewrap{grid-area:scene;position:relative;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 0 rgba(44,93,148,.14)}
+#scene{width:100%;height:auto;display:block;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.conf{position:absolute;top:-30px;font-size:28px;animation:fall 1.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(580px) rotate(360deg);opacity:.2}}
+.side{grid-area:side;display:flex;flex-direction:column;gap:12px}
+.panel{background:#fff;border-radius:18px;padding:12px;box-shadow:0 5px 0 rgba(44,93,148,.12)}
+.panel h3{font-size:1.05rem;color:var(--blue-d);margin-bottom:8px}
+#items{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.item{display:flex;flex-direction:column;align-items:center;gap:2px;background:#f4f9ff;border:3px solid #cfe1f5;border-radius:14px;padding:6px 4px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-weight:700;font-size:.9rem;text-align:center;min-height:88px}
+.item svg{width:54px;height:54px;pointer-events:none}
+.item:hover{border-color:var(--orange)}
+.item.dragging{opacity:.3}
+.item.sel{border-color:var(--orange);background:#fff3d6;box-shadow:0 0 0 4px rgba(255,154,60,.35)}
+.item.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.ghost{position:fixed;z-index:999;width:78px;height:78px;transform:translate(-50%,-50%) scale(1.15) rotate(-5deg);pointer-events:none;filter:drop-shadow(0 10px 8px rgba(0,0,0,.35))}
+.ghost svg{width:100%;height:100%}
+.empty{grid-column:1/-1;color:var(--muted);text-align:center;padding:8px}
+#dirBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#dirBtns button{font:inherit;font-weight:800;min-height:46px;border-radius:12px;border:3px solid #cfe1f5;background:#fff;cursor:pointer;font-size:.85rem;padding:2px}
+#dirBtns button:hover,#dirBtns button.on{background:#fff3d6;border-color:var(--orange)}
+#dirInfo{margin-top:8px;font-size:.95rem;background:#f4f9ff;border-radius:12px;padding:6px 8px}
+#dirInfo svg{width:100%;height:auto;display:block}
+.bottom{grid-area:bottom;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 rgba(44,93,148,.12)}
+#feedback{flex:1;min-width:200px;font-size:1.2rem;font-weight:700;min-height:2.6em;display:flex;align-items:center}
+.fb.ok{color:var(--green-d)} .fb.bad{color:#b4423f} .fb.info{color:var(--blue-d)}
+.pop{transform-box:fill-box;transform-origin:center;animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.gref{fill:rgba(255,213,79,.28);stroke:#ff9800;stroke-width:5;stroke-dasharray:12 7}
+.gzone{fill:rgba(76,175,80,.22);stroke:#2e9b43;stroke-width:5;stroke-dasharray:9 7}
+.gpulse{animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.35}to{opacity:1}}
+
+/* ---- Result ---- */
+.hasil-head{text-align:center}
+.kategori{font-size:2.2rem;font-weight:800;color:var(--orange-d)}
+.big{font-size:3.2rem;font-weight:800;color:var(--blue-d)}
+table.t{width:100%;border-collapse:collapse;margin:10px 0}
+table.t th,table.t td{border:2px solid #d4e3f3;padding:8px 10px;text-align:left}
+table.t th{background:#e6f1fc}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;margin:12px 0}
+.kv div b{color:var(--muted);font-weight:700}
+.status{margin-top:10px;padding:10px 14px;border-radius:12px;font-weight:700;display:none}
+.status.show{display:block}
+.status.ok{background:#dff5e3;color:#1f6a31}.status.bad{background:#ffe3e1;color:#9a2f2c}.status.info{background:#e1effc;color:#24527f}
+
+@media (max-width:900px){
+  .start-grid,.materi{grid-template-columns:1fr}
+  .gamegrid{grid-template-columns:minmax(0,1fr);grid-template-areas:"ins" "scene" "side" "bottom"}
+  #items{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
+  .instruction{font-size:1.3rem}
+  .start-grid h1{font-size:2rem}
+  .roomgrid{grid-template-columns:1fr}
+}
+@media (max-width:520px){ body{font-size:16px} .wrap{padding:10px} .kv{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms!important;animation-iteration-count:1!important} }
+@media print{
+  body{background:#fff}
+  .screen{display:none!important}
+  #screen-result{display:block!important}
+  .noprint{display:none!important}
+  .card{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== HALAMAN AWAL ===================== -->
+<section id="screen-start" class="screen active">
+  <div class="wrap">
+    <div class="start-grid">
+      <div class="card">
+        <h1>Petualangan Menata Rumah</h1>
+        <div class="sub">Ayo belajar posisi benda sambil bermain!</div>
+        <div class="kelasrow">
+          <div><label for="inName">Nama murid</label><input id="inName" type="text" maxlength="40" placeholder="Tulis namamu" autocomplete="off"></div>
+          <div><label for="inKelas">Kelas</label><input id="inKelas" type="text" maxlength="10" value="II" autocomplete="off"></div>
+        </div>
+        <div class="err" id="startErr" role="alert"></div>
+        <div class="btnrow">
+          <button class="btn green" id="btnMulai">▶ Mulai Bermain</button>
+          <button class="btn orange" id="btnBelajar">📖 Belajar Posisi Benda</button>
+          <button class="btn" id="btnPetunjuk">❓ Petunjuk Permainan</button>
+        </div>
+        <button class="linkbtn hidden" id="btnReset">Hapus kemajuan dan mulai dari awal</button>
+      </div>
+      <div class="houseart" aria-hidden="true">
+        <svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+          <rect width="480" height="360" rx="24" fill="#bfe6ff"/>
+          <circle cx="410" cy="60" r="34" fill="#ffe27a"/>
+          <ellipse cx="90" cy="70" rx="50" ry="20" fill="#fff"/><ellipse cx="130" cy="58" rx="34" ry="18" fill="#fff"/>
+          <rect y="290" width="480" height="70" fill="#8fd16c"/>
+          <rect x="120" y="150" width="240" height="150" fill="#ffe0a8" stroke="#c98a4b" stroke-width="5"/>
+          <path d="M100 155L240 60L380 155z" fill="#e8685f" stroke="#a63a3a" stroke-width="5" stroke-linejoin="round"/>
+          <rect x="215" y="215" width="55" height="85" rx="6" fill="#8a5a3b"/><circle cx="260" cy="260" r="4" fill="#ffd54f"/>
+          <rect x="145" y="185" width="52" height="52" fill="#c9ecff" stroke="#c98a4b" stroke-width="4"/><path d="M171 185v52M145 211h52" stroke="#c98a4b" stroke-width="3"/>
+          <rect x="290" y="185" width="52" height="52" fill="#c9ecff" stroke="#c98a4b" stroke-width="4"/><path d="M316 185v52M290 211h52" stroke="#c98a4b" stroke-width="3"/>
+          <rect x="325" y="85" width="26" height="50" fill="#b27639"/>
+          <rect x="40" y="220" width="16" height="80" fill="#8a5a3b"/><circle cx="48" cy="205" r="40" fill="#56b36a"/>
+          <circle cx="60" cy="318" r="14" fill="#ff7a45" stroke="#c4491c" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PETUNJUK ===================== -->
+<section id="screen-help" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <h2>Petunjuk Permainan</h2>
+      <ol style="padding-left:1.2em">
+        <li>Tulis namamu, lalu tekan <b>Mulai Bermain</b>.</li>
+        <li>Pilih satu ruangan: Ruang Tamu, Kamar Tidur, Kamar Mandi, atau Dapur.</li>
+        <li>Baca atau dengarkan instruksi di bagian atas, misalnya <b>“Letakkan bola di bawah meja!”</b></li>
+        <li><b>Seret</b> benda dari kotak benda ke tempat yang diminta. Boleh juga <b>ketuk benda</b>, lalu <b>ketuk tempat tujuan</b>.</li>
+        <li>Jika benar, kamu mendapat <b>10 poin</b> dan benda terkunci. Tekan <b>Soal Berikutnya</b>.</li>
+        <li>Jika belum tepat, benda kembali dan kamu boleh mencoba lagi. Kamu akan mendapat petunjuk.</li>
+        <li>Tombol <b>Navigasi Arah</b> (↑ ↓ ← →) membantu kamu mengingat arti posisi.</li>
+        <li>Setiap ruangan punya 10 soal. Selesaikan keempat ruangan untuk melihat nilaimu.</li>
+      </ol>
+      <div class="note">Kanan dan kiri dilihat dari sudut pandang kamu yang melihat layar.</div>
+      <div class="navrow"><button class="btn gray" data-go="screen-start">⬅ Kembali</button><button class="btn green" id="btnHelpPlay">▶ Mulai Bermain</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MATERI ===================== -->
+<section id="screen-materi" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <h2 style="color:var(--blue-d)">Belajar Posisi Benda <span id="matCount" style="font-size:1rem;color:var(--muted)"></span></h2>
+      <div class="materi">
+        <div class="illus" id="matIllus"></div>
+        <div>
+          <div class="kata" id="matKata"></div>
+          <div id="matTeks" style="font-size:1.25rem"></div>
+          <div class="contoh" id="matContoh"></div>
+          <div class="note" id="matNote"></div>
+        </div>
+      </div>
+      <div class="dots" id="matDots"></div>
+      <div class="navrow">
+        <button class="btn gray" id="matPrev">⬅ Kembali</button>
+        <button class="btn orange" id="matNext">Selanjutnya ➡</button>
+        <button class="btn green" id="matPlay">▶ Mulai Bermain</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PILIH RUANGAN ===================== -->
+<section id="screen-rooms" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center">
+        <div><h2 style="margin:0">Pilih Ruangan</h2><div class="who" id="roomsWho"></div></div>
+        <div class="score">⭐ Skor: <span id="roomsScore">0</span> / 400</div>
+      </div>
+      <div class="roomgrid" id="roomGrid"></div>
+      <div class="navrow">
+        <button class="btn gray" id="btnRoomsHome">🏠 Halaman Awal</button>
+        <button class="btn orange" id="btnRoomsLearn">📖 Materi</button>
+        <button class="btn green" id="btnRoomsResult" disabled>🏆 Lihat Hasil Akhir</button>
+      </div>
+      <div id="roomsHint" style="margin-top:8px;color:var(--muted)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PERMAINAN ===================== -->
+<section id="screen-game" class="screen">
+  <header class="topbar">
+    <button class="btn small gray" id="btnToRooms">⬅ Ruangan</button>
+    <div class="roomtitle" id="roomTitle"></div>
+    <div class="who" id="whoName"></div>
+    <div class="score">⭐ Skor: <b id="scoreVal">0</b></div>
+    <div class="prog"><span id="progText" style="font-weight:700">0 dari 40 soal</span><div class="bar"><i id="progBar"></i></div></div>
+    <button class="btn small" id="btnSound" aria-label="Suara">🔊</button>
+  </header>
+  <div class="gamegrid">
+    <div class="instruction" id="instruction" aria-live="polite"></div>
+    <div class="scenewrap"><svg id="scene" viewBox="0 0 960 520" role="img" aria-label="Ilustrasi ruangan"></svg><div id="fx"></div></div>
+    <aside class="side">
+      <div class="panel"><h3>🧺 Benda yang belum ditempatkan</h3><div id="items"></div></div>
+      <div class="panel"><h3>🧭 Navigasi Arah</h3><div id="dirBtns"></div><div id="dirInfo">Ketuk tombol untuk melihat arti posisi.</div></div>
+    </aside>
+    <div class="bottom">
+      <div id="feedback" aria-live="polite"></div>
+      <button class="btn orange" id="btnHint">💡 Petunjuk</button>
+      <button class="btn green hidden" id="btnNext">Soal Berikutnya ➜</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HASIL ===================== -->
+<section id="screen-result" class="screen">
+  <div class="wrap">
+    <div class="card" id="resultCard"></div>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   KONFIGURASI UNTUK GURU
+   - ENDPOINT_URL : isi dengan URL Web App Google Apps Script (lihat PETUNJUK.md).
+                    Jika dikosongkan, tombol "Kirim Nilai ke Guru" akan menjelaskan
+                    bahwa pengiriman belum diatur dan menawarkan unduhan CSV.
+   - POIN_HANYA_PERCOBAAN_PERTAMA : false = soal yang akhirnya dijawab benar tetap
+                    mendapat 10 poin (sesuai aturan awal). true = poin hanya diberikan
+                    bila benar pada percobaan pertama.
+   ===================================================================== */
+const CONFIG = {
+  ENDPOINT_URL: "",
+  POIN_HANYA_PERCOBAAN_PERTAMA: false,
+  KIRIM_TIMEOUT_MS: 15000
+};
+
+/* ======================= IKON BENDA (SVG 60x60) ======================= */
+const sandalSvg=(a,b,c)=>`<ellipse cx="19" cy="34" rx="10" ry="19" fill="${a}" stroke="${b}" stroke-width="2.5"/><ellipse cx="42" cy="30" rx="10" ry="19" fill="${a}" stroke="${b}" stroke-width="2.5"/><path d="M11 32q8-10 16 0M34 28q8-10 16 0" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>`;
+const ICONS={
+bantal:`<rect x="5" y="13" width="50" height="34" rx="13" fill="#ff9eb5" stroke="#d9627f" stroke-width="2.5"/><path d="M14 25q16-8 32 0" fill="none" stroke="#ffd3df" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="35" r="2.5" fill="#d9627f"/>`,
+buku:`<rect x="10" y="8" width="40" height="46" rx="4" fill="#4f8ac4" stroke="#2c5d94" stroke-width="2.5"/><rect x="10" y="8" width="7" height="46" rx="3" fill="#2c5d94"/><rect x="22" y="16" width="22" height="9" rx="2" fill="#fff"/><rect x="22" y="30" width="16" height="3" rx="1.5" fill="#cfe3f7"/>`,
+bola:`<circle cx="30" cy="30" r="23" fill="#ff7a45" stroke="#c4491c" stroke-width="2.5"/><path d="M7 30h46M30 7v46" stroke="#c4491c" stroke-width="2" fill="none"/><path d="M14 14q16 16 0 32M46 14q-16 16 0 32" stroke="#c4491c" stroke-width="2" fill="none"/>`,
+remote:`<rect x="19" y="4" width="22" height="52" rx="7" fill="#444" stroke="#222" stroke-width="2"/><circle cx="30" cy="14" r="4" fill="#ff5252"/><circle cx="25" cy="26" r="3" fill="#ddd"/><circle cx="35" cy="26" r="3" fill="#ddd"/><circle cx="25" cy="35" r="3" fill="#ddd"/><circle cx="35" cy="35" r="3" fill="#ddd"/><rect x="23" y="43" width="14" height="5" rx="2" fill="#999"/>`,
+gelas:`<path d="M14 10h32l-4 44H18z" fill="#cdeeff" stroke="#4aa3c9" stroke-width="2.5" stroke-linejoin="round"/><path d="M16.5 28h27l-1.8 24H18.3z" fill="#7cc8ee"/>`,
+vas:`<path d="M30 30V12" stroke="#3a9a4a" stroke-width="3"/><circle cx="30" cy="9" r="6" fill="#ff6fa0"/><circle cx="21" cy="14" r="5" fill="#ffd54f"/><circle cx="39" cy="14" r="5" fill="#ffd54f"/><path d="M20 28h20q4 8 0 16-2 10-10 12-8-2-10-12-4-8 0-16z" fill="#ab8de0" stroke="#7b5cc2" stroke-width="2.5"/>`,
+mobil:`<rect x="4" y="28" width="52" height="16" rx="5" fill="#e53935" stroke="#a31f1c" stroke-width="2.5"/><path d="M14 28l7-13h18l8 13z" fill="#ef7a77" stroke="#a31f1c" stroke-width="2.5" stroke-linejoin="round"/><circle cx="16" cy="46" r="7" fill="#333"/><circle cx="44" cy="46" r="7" fill="#333"/><circle cx="16" cy="46" r="2.5" fill="#ccc"/><circle cx="44" cy="46" r="2.5" fill="#ccc"/>`,
+boneka:`<circle cx="14" cy="12" r="7" fill="#c68642"/><circle cx="46" cy="12" r="7" fill="#c68642"/><ellipse cx="30" cy="46" rx="14" ry="11" fill="#d99a5b" stroke="#a9692f" stroke-width="2.5"/><circle cx="30" cy="22" r="15" fill="#d99a5b" stroke="#a9692f" stroke-width="2.5"/><ellipse cx="30" cy="27" rx="7" ry="5" fill="#f3d2a5"/><circle cx="24" cy="19" r="2" fill="#333"/><circle cx="36" cy="19" r="2" fill="#333"/><circle cx="30" cy="25" r="2" fill="#333"/>`,
+majalah:`<rect x="11" y="6" width="38" height="48" rx="3" fill="#ffb74d" stroke="#d98a1f" stroke-width="2.5"/><rect x="16" y="11" width="28" height="9" rx="2" fill="#fff"/><rect x="16" y="25" width="28" height="16" rx="2" fill="#7ad0e8"/><rect x="16" y="45" width="18" height="3" rx="1.5" fill="#fff"/>`,
+bingkai:`<rect x="5" y="9" width="50" height="42" rx="3" fill="#a9743a" stroke="#6e4a22" stroke-width="2"/><rect x="11" y="15" width="38" height="30" fill="#bfe6ff"/><circle cx="39" cy="24" r="5" fill="#ffd54f"/><path d="M11 45l12-14 9 9 7-6 10 11z" fill="#6cc070"/>`,
+selimut:`<rect x="3" y="14" width="54" height="32" rx="6" fill="#a5d6a7" stroke="#5aa55f" stroke-width="2.5"/><path d="M3 24h54M3 34h54" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M14 14v32M30 14v32M46 14v32" stroke="#5aa55f" stroke-width="1.5" opacity=".6"/>`,
+bukucerita:`<rect x="10" y="8" width="40" height="46" rx="4" fill="#ffca3a" stroke="#c99a00" stroke-width="2.5"/><rect x="10" y="8" width="7" height="46" rx="3" fill="#c99a00"/><path d="M33 16l3.5 7.5 8 1-6 5.5 1.7 8-7.2-4-7.2 4 1.7-8-6-5.5 8-1z" fill="#fff"/>`,
+sepatu:`<path d="M6 40V20q0-5 5-5h8l4 8q8 3 22 7 8 3 8 10v4q0 3-3 3H9q-3 0-3-3z" fill="#e57373" stroke="#a63a3a" stroke-width="2.5" stroke-linejoin="round"/><rect x="6" y="44" width="48" height="6" rx="3" fill="#fff" stroke="#a63a3a" stroke-width="2"/><path d="M20 24l4 3M25 21l4 3" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`,
+tas:`<rect x="12" y="12" width="36" height="42" rx="12" fill="#7e57c2" stroke="#4e2f94" stroke-width="2.5"/><path d="M22 12q0-8 8-8t8 8" fill="none" stroke="#4e2f94" stroke-width="3"/><rect x="18" y="32" width="24" height="16" rx="5" fill="#b39ddb" stroke="#4e2f94" stroke-width="2"/><rect x="26" y="38" width="8" height="3" rx="1.5" fill="#4e2f94"/>`,
+lampu:`<path d="M16 8h28l8 24H8z" fill="#ffe082" stroke="#d9a21b" stroke-width="2.5" stroke-linejoin="round"/><rect x="28" y="32" width="4" height="14" fill="#8d6e63"/><ellipse cx="30" cy="50" rx="13" ry="5" fill="#8d6e63"/>`,
+jam:`<circle cx="14" cy="10" r="7" fill="#e53935"/><circle cx="46" cy="10" r="7" fill="#e53935"/><path d="M16 50l-4 6M44 50l4 6" stroke="#e53935" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="33" r="20" fill="#fff" stroke="#e53935" stroke-width="4"/><path d="M30 33V21M30 33l9 5" stroke="#333" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="33" r="2.5" fill="#333"/>`,
+pakaian:`<path d="M20 6L4 17l7 10 7-4v31h24V23l7 4 7-10L40 6q-3 7-10 7t-10-7z" fill="#4dd0e1" stroke="#1f8fa1" stroke-width="2.5" stroke-linejoin="round"/>`,
+sandal:sandalSvg('#ffb74d','#c97d10','#e53935'),
+sandalmandi:sandalSvg('#81d4fa','#2b8fc6','#fff'),
+sabun:`<circle cx="44" cy="12" r="5" fill="#e1f5fe" stroke="#81d4fa" stroke-width="1.5"/><circle cx="35" cy="8" r="3" fill="#e1f5fe" stroke="#81d4fa" stroke-width="1.5"/><rect x="8" y="20" width="44" height="26" rx="10" fill="#f48fb1" stroke="#c2587f" stroke-width="2.5"/><path d="M16 29q4-4 10-3" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+sampo:`<rect x="18" y="14" width="24" height="42" rx="7" fill="#80cbc4" stroke="#2f8f86" stroke-width="2.5"/><rect x="23" y="5" width="14" height="10" rx="3" fill="#2f8f86"/><rect x="21" y="26" width="18" height="16" rx="3" fill="#fff"/><circle cx="30" cy="34" r="4" fill="#80cbc4"/>`,
+sikat:`<path d="M25 6v-4M30 6v-4M35 6v-4" stroke="#2b7fc6" stroke-width="2.5" stroke-linecap="round"/><rect x="26" y="22" width="8" height="34" rx="4" fill="#64b5f6" stroke="#2b7fc6" stroke-width="2"/><rect x="21" y="6" width="18" height="18" rx="4" fill="#e3f2fd" stroke="#2b7fc6" stroke-width="2"/>`,
+pasta:`<rect x="17" y="8" width="26" height="40" rx="5" fill="#fff" stroke="#3b82c4" stroke-width="2.5"/><rect x="17" y="20" width="26" height="12" fill="#3b82c4"/><circle cx="30" cy="26" r="3" fill="#fff"/><rect x="22" y="48" width="16" height="8" rx="2" fill="#3b82c4"/>`,
+handuk:`<rect x="6" y="10" width="48" height="40" rx="4" fill="#ffcc80" stroke="#d98a1f" stroke-width="2.5"/><rect x="6" y="20" width="48" height="6" fill="#fff"/><rect x="6" y="34" width="48" height="6" fill="#fff"/><path d="M10 50v5M16 50v5M22 50v5M38 50v5M44 50v5M50 50v5" stroke="#d98a1f" stroke-width="2" stroke-linecap="round"/>`,
+gayung:`<path d="M38 30L56 10" stroke="#0f7fb5" stroke-width="5" stroke-linecap="round"/><path d="M8 30h32q0 20-16 20T8 30z" fill="#29b6f6" stroke="#0f7fb5" stroke-width="2.5"/><ellipse cx="24" cy="30" rx="16" ry="4" fill="#81d4fa" stroke="#0f7fb5" stroke-width="2"/>`,
+spons:`<rect x="8" y="16" width="44" height="30" rx="8" fill="#ffee58" stroke="#c9b100" stroke-width="2.5"/><rect x="8" y="40" width="44" height="6" rx="3" fill="#66bb6a"/><circle cx="20" cy="26" r="3" fill="#c9b100" opacity=".5"/><circle cx="34" cy="31" r="3.5" fill="#c9b100" opacity=".5"/><circle cx="43" cy="23" r="2.5" fill="#c9b100" opacity=".5"/>`,
+sisir:`<rect x="4" y="12" width="52" height="14" rx="5" fill="#ce93d8" stroke="#8e4a9e" stroke-width="2.5"/><path d="M10 26v22M17 26v22M24 26v22M31 26v22M38 26v22M45 26v22M52 26v22" stroke="#8e4a9e" stroke-width="3" stroke-linecap="round"/>`,
+ember:`<path d="M14 18q16-22 32 0" fill="none" stroke="#1565c0" stroke-width="2.5"/><path d="M12 18h36l-4 36q-1 3-4 3H20q-3 0-4-3z" fill="#42a5f5" stroke="#1565c0" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="30" cy="18" rx="18" ry="5" fill="#90caf9" stroke="#1565c0" stroke-width="2.5"/>`,
+piring:`<ellipse cx="30" cy="34" rx="26" ry="14" fill="#fff" stroke="#9aa5b1" stroke-width="2.5"/><ellipse cx="30" cy="33" rx="16" ry="8" fill="#e3f2fd" stroke="#9aa5b1" stroke-width="2"/>`,
+sendok:`<ellipse cx="30" cy="14" rx="9" ry="12" fill="#cfd8dc" stroke="#78909c" stroke-width="2.5"/><rect x="27" y="24" width="6" height="32" rx="3" fill="#cfd8dc" stroke="#78909c" stroke-width="2"/>`,
+garpu:`<path d="M20 4v14q0 6 6 6h8q6 0 6-6V4M30 4v18" fill="none" stroke="#78909c" stroke-width="3" stroke-linecap="round"/><rect x="27" y="22" width="6" height="34" rx="3" fill="#cfd8dc" stroke="#78909c" stroke-width="2"/>`,
+panci:`<circle cx="30" cy="10" r="4" fill="#546e7a"/><rect x="10" y="20" width="40" height="30" rx="5" fill="#90a4ae" stroke="#546e7a" stroke-width="2.5"/><rect x="8" y="14" width="44" height="8" rx="3" fill="#b0bec5" stroke="#546e7a" stroke-width="2.5"/><rect x="2" y="26" width="8" height="5" rx="2" fill="#546e7a"/><rect x="50" y="26" width="8" height="5" rx="2" fill="#546e7a"/>`,
+wajan:`<ellipse cx="24" cy="30" rx="22" ry="12" fill="#455a64" stroke="#263238" stroke-width="2.5"/><ellipse cx="24" cy="28" rx="16" ry="7" fill="#78909c"/><rect x="44" y="27" width="15" height="6" rx="3" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/>`,
+apel:`<circle cx="30" cy="34" r="19" fill="#e53935" stroke="#a31f1c" stroke-width="2.5"/><path d="M30 16q0-8 6-10" stroke="#6d4c41" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M33 10q9-4 12 2-8 4-12-2z" fill="#66bb6a"/><path d="M20 28q2-6 7-6" stroke="#ff8a80" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+botol:`<rect x="20" y="16" width="20" height="40" rx="7" fill="#81d4fa" stroke="#2b8fc6" stroke-width="2.5"/><rect x="25" y="4" width="10" height="12" rx="3" fill="#2b8fc6"/><rect x="20" y="28" width="20" height="14" fill="#fff" opacity=".8"/>`,
+mangkuk:`<path d="M6 24h48q0 26-24 26T6 24z" fill="#ffcc80" stroke="#d98a1f" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="30" cy="24" rx="24" ry="5" fill="#ffe0b2" stroke="#d98a1f" stroke-width="2.5"/><rect x="20" y="49" width="20" height="5" rx="2" fill="#d98a1f"/>`,
+spatula:`<rect x="27" y="26" width="6" height="30" rx="3" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/><path d="M18 4h24v20q0 4-4 4H22q-4 0-4-4z" fill="#ef9a9a" stroke="#c0504d" stroke-width="2.5"/><path d="M24 8v14M30 8v14M36 8v14" stroke="#c0504d" stroke-width="2" opacity=".6"/>`
+};
+/* Posisi dasar (bawah) setiap ikon, dipakai agar benda tampak "duduk" di permukaan */
+const BOT={bantal:47,buku:54,bola:53,remote:56,gelas:54,vas:56,mobil:53,boneka:57,majalah:54,bingkai:51,selimut:46,bukucerita:54,sepatu:50,tas:54,lampu:55,jam:56,pakaian:54,sandal:53,sabun:46,sampo:56,sikat:56,pasta:56,handuk:55,gayung:50,spons:46,sisir:48,sandalmandi:53,ember:57,piring:48,sendok:56,garpu:56,panci:50,wajan:42,apel:53,botol:56,mangkuk:54,spatula:56};
+const NAMA={bantal:'Bantal',buku:'Buku',bola:'Bola',remote:'Remote',gelas:'Gelas',vas:'Vas Bunga',mobil:'Mobil-mobilan',boneka:'Boneka',majalah:'Majalah',bingkai:'Bingkai Foto',
+selimut:'Selimut',bukucerita:'Buku Cerita',sepatu:'Sepatu',tas:'Tas Sekolah',lampu:'Lampu Tidur',jam:'Jam Weker',pakaian:'Pakaian',sandal:'Sandal',
+sabun:'Sabun',sampo:'Sampo',sikat:'Sikat Gigi',pasta:'Pasta Gigi',handuk:'Handuk',gayung:'Gayung',spons:'Spons Mandi',sisir:'Sisir',sandalmandi:'Sandal',ember:'Ember',
+piring:'Piring',sendok:'Sendok',garpu:'Garpu',panci:'Panci',wajan:'Wajan',apel:'Buah Apel',botol:'Botol Air',mangkuk:'Mangkuk',spatula:'Spatula'};
+const S0=0.95;
+const P=(item,cx,surf,s=S0)=>[cx,Math.round(surf-(BOT[item]-30)*s)];
+const box=(cx,cy)=>[cx-28,cy-28,56,56];
+
+/* ======================= TEKS PETUNJUK PER ATURAN ======================= */
+const RULE={
+  atas:'Di atas berarti benda berada pada bagian atas benda lain.',
+  bawah:'Di bawah berarti benda berada pada bagian yang lebih rendah dari benda acuan.',
+  depan:'Di depan berarti benda berada di bagian muka, lebih dekat ke kita.',
+  kanan:'Di sebelah kanan berarti berada di sisi kanan benda acuan, dilihat dari kamu yang menatap layar.',
+  kiri:'Di sebelah kiri berarti berada di sisi kiri benda acuan, dilihat dari kamu yang menatap layar.',
+  dalam:'Di dalam berarti benda berada di bagian dalam suatu tempat.',
+  samping:'Di samping atau di sebelah berarti benda berada bersebelahan, di sisi kiri atau kanan benda acuan.'
+};
+function Q(item,text,rule,refName,ref,zones,at,s=S0){return {item,text,rule,refName,ref,zones,at,s};}
+
+/* ======================= ADEGAN RUANGAN ======================= */
+function sceneRT(){return {bg:`
+<rect width="960" height="520" fill="#fff3d9"/>
+<rect y="380" width="960" height="140" fill="#e9c996"/><rect y="376" width="960" height="8" fill="#d6ad72"/>
+<rect x="230" y="40" width="190" height="130" rx="8" fill="#c9ecff" stroke="#9c7a48" stroke-width="8"/><path d="M325 40v130M230 105h190" stroke="#9c7a48" stroke-width="6"/>
+<circle cx="760" cy="110" r="40" fill="#fff" stroke="#9c7a48" stroke-width="6"/><path d="M760 110V84M760 110l18 10" stroke="#555" stroke-width="5" stroke-linecap="round"/>
+<rect x="190" y="420" width="600" height="90" rx="40" fill="#f5a3a3" opacity=".55"/>
+<rect x="20" y="300" width="160" height="100" rx="6" fill="#c98a4b" stroke="#8a5a2b" stroke-width="3"/><rect x="30" y="312" width="65" height="76" rx="3" fill="#b27639"/><rect x="105" y="312" width="65" height="76" rx="3" fill="#b27639"/><circle cx="88" cy="350" r="4" fill="#ffd54f"/><circle cx="112" cy="350" r="4" fill="#ffd54f"/>
+<rect x="215" y="225" width="220" height="100" rx="18" fill="#7fb3e6" stroke="#4f8ac4" stroke-width="3"/>
+<rect x="205" y="300" width="240" height="80" rx="14" fill="#5f9bd6" stroke="#3f78b3" stroke-width="3"/>
+<rect x="190" y="270" width="34" height="110" rx="14" fill="#4f8ac4" stroke="#3f78b3" stroke-width="3"/><rect x="426" y="270" width="34" height="110" rx="14" fill="#4f8ac4" stroke="#3f78b3" stroke-width="3"/>
+<rect x="470" y="330" width="310" height="50" rx="6" fill="#c98a4b" stroke="#8a5a2b" stroke-width="3"/><path d="M475 355h300" stroke="#a9743a" stroke-width="3"/>
+<rect x="540" y="320" width="20" height="10" fill="#333"/>
+<rect x="490" y="235" width="120" height="85" rx="6" fill="#333"/><rect x="497" y="242" width="106" height="71" rx="3" fill="#7ad0e8"/><path d="M505 300l25-30 20 22 15-14 30 22z" fill="#9be15d" opacity=".7"/>
+<rect x="650" y="420" width="130" height="80" rx="8" fill="#e0a82e" stroke="#b9831c" stroke-width="3"/><rect x="658" y="426" width="114" height="26" rx="4" fill="#8a5a10"/>
+<rect x="290" y="430" width="240" height="14" rx="5" fill="#d9a066" stroke="#9a6a35" stroke-width="3"/><rect x="300" y="444" width="14" height="58" rx="3" fill="#b27639"/><rect x="506" y="444" width="14" height="58" rx="3" fill="#b27639"/>
+`,fg:`
+<rect x="650" y="452" width="130" height="48" rx="6" fill="#f6d36e" stroke="#c99a1d" stroke-width="3"/><path d="M652 472h126" stroke="#e8b830" stroke-width="4"/>
+`};}
+
+function sceneKT(){return {bg:`
+<rect width="960" height="520" fill="#efe8ff"/>
+<rect y="390" width="960" height="130" fill="#d9b88f"/><rect y="386" width="960" height="8" fill="#c39f73"/>
+<rect x="400" y="40" width="170" height="120" rx="8" fill="#cfeaff" stroke="#8c6d9e" stroke-width="8"/><path d="M485 40v120M400 100h170" stroke="#8c6d9e" stroke-width="6"/>
+<rect x="20" y="130" width="170" height="270" rx="8" fill="#b98255" stroke="#7a4f2a" stroke-width="4"/><rect x="34" y="146" width="142" height="206" fill="#8a5d38"/><path d="M40 168h130" stroke="#d9d9d9" stroke-width="4"/>
+<rect x="34" y="358" width="142" height="34" rx="4" fill="#c99565" stroke="#7a4f2a" stroke-width="3"/><circle cx="105" cy="375" r="4" fill="#7a4f2a"/>
+<rect x="320" y="430" width="380" height="80" rx="40" fill="#ffb3c6" opacity=".7"/>
+<rect x="290" y="210" width="26" height="212" rx="6" fill="#8a5a3b"/>
+<rect x="306" y="352" width="14" height="68" fill="#8a5a3b"/><rect x="700" y="352" width="14" height="68" fill="#8a5a3b"/>
+<rect x="300" y="334" width="420" height="18" rx="4" fill="#8a5a3b"/>
+<rect x="300" y="292" width="420" height="42" rx="10" fill="#cfe3ff" stroke="#8fb4e6" stroke-width="3"/>
+<rect x="730" y="330" width="210" height="90" rx="6" fill="#c98a4b" stroke="#8a5a2b" stroke-width="3"/><rect x="742" y="342" width="186" height="30" rx="4" fill="#b27639"/><rect x="742" y="378" width="186" height="30" rx="4" fill="#b27639"/><circle cx="835" cy="357" r="4" fill="#ffd54f"/><circle cx="835" cy="393" r="4" fill="#ffd54f"/>
+`,fg:''};}
+
+function sceneKM(){
+  let tiles='';for(let x=0;x<=960;x+=120)tiles+=`M${x} 0V380`;for(let y=0;y<=380;y+=95)tiles+=`M0 ${y}H960`;
+  return {bg:`
+<rect width="960" height="520" fill="#d7f3f0"/><path d="${tiles}" stroke="#b9e0db" stroke-width="2" fill="none"/>
+<rect y="380" width="960" height="140" fill="#bcd9e6"/><rect y="376" width="960" height="8" fill="#9fc2d3"/>
+<rect x="40" y="60" width="210" height="150" rx="12" fill="#e8f7ff" stroke="#7aa6c2" stroke-width="6"/><path d="M70 170l50-70M110 190l60-85" stroke="#fff" stroke-width="8" opacity=".7" stroke-linecap="round"/>
+<rect x="24" y="300" width="242" height="14" rx="5" fill="#f1f1f1" stroke="#b5b5b5" stroke-width="3"/><rect x="30" y="314" width="230" height="88" rx="5" fill="#fff" stroke="#c4c4c4" stroke-width="3"/><path d="M145 314v88" stroke="#d6d6d6" stroke-width="3"/><circle cx="135" cy="360" r="4" fill="#999"/><circle cx="155" cy="360" r="4" fill="#999"/>
+<path d="M128 300v-34q0-8 10-8h10" stroke="#8a8a8a" stroke-width="6" fill="none" stroke-linecap="round"/>
+<rect x="204" y="250" width="52" height="50" rx="6" fill="#ffd9e6" stroke="#d96a8f" stroke-width="2.5"/>
+<rect x="290" y="210" width="210" height="12" rx="4" fill="#e0a96d" stroke="#b37a3a" stroke-width="2.5"/><path d="M310 222v22M480 222v22" stroke="#b37a3a" stroke-width="5"/>
+<rect x="540" y="150" width="120" height="10" rx="4" fill="#9aa5b1"/><rect x="548" y="150" width="8" height="18" fill="#9aa5b1"/><rect x="644" y="150" width="8" height="18" fill="#9aa5b1"/>
+<rect x="700" y="280" width="240" height="125" rx="12" fill="#8fd3e8" stroke="#4fa3bf" stroke-width="4"/><rect x="712" y="292" width="216" height="22" rx="8" fill="#bfeaf5"/><path d="M730 340q30 12 60 0t60 0 60 0 30 0" stroke="#fff" stroke-width="4" fill="none" opacity=".7"/>
+<path d="M900 280v-40q0-8-10-8h-20" stroke="#8a8a8a" stroke-width="7" fill="none" stroke-linecap="round"/>
+`,fg:`
+<rect x="204" y="262" width="52" height="38" rx="6" fill="#ffc1d6" stroke="#d96a8f" stroke-width="2.5"/><path d="M212 274h36" stroke="#fff" stroke-width="4" opacity=".7" stroke-linecap="round"/>
+`};}
+
+function sceneDP(){return {bg:`
+<rect width="960" height="520" fill="#fff0d9"/>
+<rect y="400" width="960" height="120" fill="#d8c3a5"/><rect y="396" width="960" height="8" fill="#bda57f"/>
+<rect x="20" y="70" width="155" height="330" rx="10" fill="#e9eef2" stroke="#9db0bd" stroke-width="4"/><rect x="32" y="84" width="131" height="304" rx="4" fill="#f9fdff"/>
+<rect x="32" y="190" width="131" height="6" fill="#b9c9d4"/><rect x="32" y="290" width="131" height="6" fill="#b9c9d4"/><rect x="40" y="318" width="40" height="36" rx="6" fill="#ffd54f"/><rect x="100" y="312" width="44" height="42" rx="6" fill="#ff8a65"/>
+<rect x="6" y="75" width="14" height="320" rx="5" fill="#cfd8de"/>
+<rect x="200" y="45" width="235" height="190" rx="8" fill="#c98a4b" stroke="#8a5a2b" stroke-width="4"/><rect x="212" y="57" width="211" height="166" rx="4" fill="#fbe9cf"/><rect x="212" y="150" width="211" height="8" fill="#a9743a"/>
+<rect x="560" y="130" width="190" height="10" rx="4" fill="#c98a4b"/><rect x="575" y="100" width="34" height="30" rx="5" fill="#a5d6a7"/><rect x="620" y="106" width="34" height="24" rx="5" fill="#ffcc80"/><rect x="665" y="96" width="34" height="34" rx="5" fill="#90caf9"/><rect x="710" y="108" width="28" height="22" rx="5" fill="#f48fb1"/>
+<rect x="190" y="300" width="580" height="100" rx="6" fill="#f1d9b5" stroke="#c4a06a" stroke-width="3"/><rect x="186" y="300" width="590" height="12" rx="4" fill="#cfa66b" stroke="#a9843f" stroke-width="2"/>
+<rect x="205" y="296" width="115" height="8" rx="3" fill="#9fb4c2"/><path d="M262 296v-26q0-8 10-8h16" stroke="#8a8a8a" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M300 318v76M560 318v76M640 318v76" stroke="#c4a06a" stroke-width="3"/><circle cx="292" cy="350" r="4" fill="#8a6a3b"/><circle cx="550" cy="350" r="4" fill="#8a6a3b"/><circle cx="650" cy="350" r="4" fill="#8a6a3b"/>
+<rect x="380" y="288" width="160" height="14" rx="3" fill="#3d3d3d"/><ellipse cx="420" cy="289" rx="22" ry="4" fill="#777"/><ellipse cx="500" cy="289" rx="22" ry="4" fill="#777"/>
+<rect x="385" y="318" width="150" height="72" rx="6" fill="#555"/><rect x="400" y="330" width="120" height="48" rx="4" fill="#222"/><rect x="400" y="322" width="120" height="5" rx="2" fill="#bbb"/>
+<rect x="658" y="250" width="50" height="50" rx="6" fill="#cfe8f7" stroke="#6aa5c9" stroke-width="2.5"/>
+<rect x="790" y="340" width="155" height="12" rx="4" fill="#d9a066" stroke="#9a6a35" stroke-width="2.5"/><rect x="800" y="352" width="12" height="48" fill="#b27639"/><rect x="922" y="352" width="12" height="48" fill="#b27639"/>
+`,fg:`
+<rect x="658" y="262" width="50" height="38" rx="6" fill="#bfe0f4" stroke="#6aa5c9" stroke-width="2.5"/><path d="M666 274h34" stroke="#fff" stroke-width="4" opacity=".7" stroke-linecap="round"/>
+`};}
+
+/* ======================= DATA RUANGAN & SOAL ======================= */
+const ROOMS=[
+{id:'rt',nama:'Ruang Tamu',em:'🛋️',cls:'rc0',scene:sceneRT,
+ items:['bantal','buku','bola','remote','gelas','vas','mobil','boneka','majalah','bingkai'],
+ qs:[
+  Q('bantal','Letakkan bantal di atas sofa.','atas','sofa',[190,225,270,155],[[215,240,220,65]],P('bantal',270,300)),
+  Q('buku','Letakkan buku di atas meja.','atas','meja',[290,425,240,80],[[290,360,240,72]],P('buku',330,430)),
+  Q('bola','Letakkan bola di bawah meja.','bawah','meja',[290,425,240,80],[[300,447,220,58]],P('bola',410,500)),
+  Q('vas','Letakkan vas bunga di atas meja.','atas','meja',[290,425,240,80],[[290,360,240,72]],P('vas',410,430)),
+  Q('gelas','Letakkan gelas di samping vas bunga.','samping','vas bunga',box(410,P('vas',410,430)[1]),[[445,360,90,72],[350,360,42,72]],P('gelas',490,430)),
+  Q('remote','Letakkan remote di sebelah kanan televisi.','kanan','televisi',[490,235,120,85],[[615,240,170,95]],P('remote',750,330)),
+  Q('majalah','Letakkan majalah di sebelah kiri remote.','kiri','remote',box(750,P('remote',750,330)[1]),[[615,240,105,95]],P('majalah',672,330)),
+  Q('mobil','Letakkan mobil-mobilan di dalam kotak mainan.','dalam','kotak mainan',[650,420,130,80],[[650,410,130,90]],[715,432],.9),
+  Q('boneka','Letakkan boneka di atas sofa.','atas','sofa',[190,225,270,155],[[215,240,220,65]],P('boneka',380,300)),
+  Q('bingkai','Letakkan bingkai foto di atas rak.','atas','rak',[20,300,160,100],[[20,215,160,85]],P('bingkai',100,300))
+ ]},
+{id:'kt',nama:'Kamar Tidur',em:'🛏️',cls:'rc1',scene:sceneKT,
+ items:['bantal','selimut','bukucerita','boneka','sepatu','tas','lampu','jam','pakaian','sandal'],
+ qs:[
+  Q('bantal','Letakkan bantal di atas tempat tidur.','atas','tempat tidur',[290,210,435,215],[[316,215,120,80]],P('bantal',365,292)),
+  Q('boneka','Letakkan boneka di sebelah kanan bantal.','kanan','bantal',box(365,P('bantal',365,292)[1]),[[395,215,170,80]],P('boneka',455,292)),
+  Q('selimut','Letakkan selimut di atas tempat tidur.','atas','tempat tidur',[290,210,435,215],[[316,215,390,80]],P('selimut',610,292,1.2),1.2),
+  Q('sepatu','Letakkan sepatu di bawah tempat tidur.','bawah','tempat tidur',[290,210,435,215],[[322,354,370,68]],P('sepatu',480,420)),
+  Q('sandal','Letakkan sandal di depan tempat tidur.','depan','tempat tidur',[290,210,435,215],[[330,428,360,82]],P('sandal',510,500)),
+  Q('lampu','Letakkan lampu tidur di atas meja samping.','atas','meja samping',[730,330,210,90],[[730,255,210,78]],P('lampu',835,330)),
+  Q('jam','Letakkan jam weker di sebelah kiri lampu tidur.','kiri','lampu tidur',box(835,P('lampu',835,330)[1]),[[730,255,75,78]],P('jam',765,330)),
+  Q('bukucerita','Letakkan buku cerita di atas meja samping tempat tidur.','atas','meja samping',[730,330,210,90],[[730,255,210,78]],P('bukucerita',905,330)),
+  Q('pakaian','Letakkan pakaian di dalam lemari.','dalam','lemari',[20,130,170,270],[[34,146,142,206]],[105,262]),
+  Q('tas','Letakkan tas sekolah di samping lemari.','samping','lemari',[20,130,170,270],[[195,330,75,80]],P('tas',232,402))
+ ]},
+{id:'km',nama:'Kamar Mandi',em:'🛁',cls:'rc2',scene:sceneKM,
+ items:['sabun','sampo','sikat','pasta','handuk','gayung','spons','sisir','sandalmandi','ember'],
+ qs:[
+  Q('sabun','Letakkan sabun di atas rak kamar mandi.','atas','rak',[290,150,210,72],[[290,140,210,75]],P('sabun',395,210)),
+  Q('sampo','Letakkan sampo di sebelah sabun.','samping','sabun',box(395,P('sabun',395,210)[1]),[[428,140,75,75],[290,140,72,75]],P('sampo',460,210)),
+  Q('spons','Letakkan spons mandi di sebelah sabun.','samping','sabun',box(395,P('sabun',395,210)[1]),[[290,140,72,75],[428,140,75,75]],P('spons',330,210)),
+  Q('sisir','Letakkan sisir di atas wastafel.','atas','wastafel',[24,292,242,110],[[24,215,242,88]],P('sisir',68,300)),
+  Q('sikat','Letakkan sikat gigi di dalam tempat sikat gigi.','dalam','tempat sikat gigi',[204,250,52,50],[[200,235,60,70]],[230,258],.8),
+  Q('pasta','Letakkan pasta gigi di samping sikat gigi.','samping','sikat gigi',[204,234,52,66],[[136,215,66,88]],P('pasta',170,300)),
+  Q('handuk','Letakkan handuk di atas gantungan handuk.','atas','gantungan handuk',[540,145,120,20],[[535,80,130,75]],P('handuk',600,150)),
+  Q('ember','Letakkan ember di samping bak mandi.','samping','bak mandi',[700,280,240,125],[[600,330,95,90]],P('ember',655,408)),
+  Q('gayung','Letakkan gayung di dalam ember.','dalam','ember',box(655,P('ember',655,408)[1]),[[615,320,80,100]],[655,360],.8),
+  Q('sandalmandi','Letakkan sandal di depan bak mandi.','depan','bak mandi',[700,280,240,125],[[700,412,240,98]],P('sandalmandi',820,495))
+ ]},
+{id:'dp',nama:'Dapur',em:'🍳',cls:'rc3',scene:sceneDP,
+ items:['piring','gelas','sendok','garpu','panci','wajan','apel','botol','mangkuk','spatula'],
+ qs:[
+  Q('piring','Letakkan piring di dalam lemari piring.','dalam','lemari piring',[200,45,235,190],[[212,57,211,166]],P('piring',260,150)),
+  Q('gelas','Letakkan gelas di sebelah piring pada rak.','samping','piring',box(260,P('piring',260,150)[1]),[[290,57,135,95]],P('gelas',345,150)),
+  Q('panci','Letakkan panci di atas kompor yang tidak menyala.','atas','kompor',[380,280,160,50],[[380,205,160,90]],P('panci',415,288)),
+  Q('wajan','Letakkan wajan di sebelah panci.','samping','panci',box(415,P('panci',415,288)[1]),[[445,205,100,90],[325,205,58,90]],P('wajan',505,288)),
+  Q('spatula','Letakkan spatula di samping kompor.','samping','kompor',[380,280,160,50],[[545,205,75,90],[325,205,58,90]],P('spatula',580,300)),
+  Q('sendok','Letakkan sendok di dalam tempat sendok.','dalam','tempat sendok',[658,250,50,50],[[655,225,56,80]],[683,255],.8),
+  Q('garpu','Letakkan garpu di samping sendok.','samping','sendok',[658,232,50,68],[[712,225,58,80],[608,225,45,80]],P('garpu',738,300)),
+  Q('mangkuk','Letakkan mangkuk di atas meja.','atas','meja',[790,335,155,65],[[790,255,155,88]],P('mangkuk',868,340)),
+  Q('apel','Letakkan apel di dalam mangkuk.','dalam','mangkuk',box(868,P('mangkuk',868,340)[1]),[[835,265,65,78]],[868,302],.7),
+  Q('botol','Letakkan botol air di dalam kulkas.','dalam','kulkas',[20,70,155,330],[[32,84,131,304]],P('botol',95,190))
+ ]}
+];
+const TOTAL_Q=40, MAX_SKOR=400;
+
+/* ======================= STATE ======================= */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const SS_KEY='pmr_state_v1', SS_MUTE='pmr_mute';
+let state=null, pending=false, muted=false, selected=null, justPlaced=-1, suppress=false, guideTimer=null;
+let cur={room:0,q:0};
+
+function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function rid(){return 'S'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function newState(name,kelas){
+  return {id:rid(),name,kelas,startedAt:Date.now(),finishedAt:null,sent:false,
+    rooms:ROOMS.map(()=>({done:Array(10).fill(false),wrong:Array(10).fill(0),firstTry:Array(10).fill(null),pts:Array(10).fill(0)}))};
+}
+function save(){try{sessionStorage.setItem(SS_KEY,JSON.stringify(state));}catch(e){}}
+function load(){try{const s=JSON.parse(sessionStorage.getItem(SS_KEY)||'null');if(s&&s.rooms&&s.rooms.length===4)return s;}catch(e){}return null;}
+function roomScore(i){return state.rooms[i].pts.reduce((a,b)=>a+b,0);}
+function roomDoneCount(i){return state.rooms[i].done.filter(Boolean).length;}
+function totalScore(){return ROOMS.reduce((a,_,i)=>a+roomScore(i),0);}
+function totalDone(){return ROOMS.reduce((a,_,i)=>a+roomDoneCount(i),0);}
+function firstUndone(i){return state.rooms[i].done.findIndex(d=>!d);}
+function allDone(){return totalDone()===TOTAL_Q;}
+
+/* ======================= NAVIGASI LAYAR ======================= */
+function show(id){
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)show(b.dataset.go);});
+
+/* ======================= HALAMAN AWAL ======================= */
+function refreshStartButtons(){
+  $('#btnReset').classList.toggle('hidden',!(state&&totalDone()>0));
+  if(state){$('#inName').value=state.name;$('#inKelas').value=state.kelas;}
+}
+function startGame(){
+  const name=$('#inName').value.trim().replace(/\s+/g,' ');
+  const kelas=($('#inKelas').value.trim()||'II');
+  if(!name){
+    $('#startErr').textContent='Tulis namamu dulu ya, lalu tekan Mulai Bermain.';
+    show('screen-start');$('#inName').focus();return;
+  }
+  $('#startErr').textContent='';
+  if(!state||state.name!==name||state.kelas!==kelas){
+    state=newState(name,kelas);
+  }
+  save();
+  showRooms();
+}
+$('#btnMulai').onclick=startGame;
+$('#btnHelpPlay').onclick=startGame;
+$('#matPlay').onclick=startGame;
+$('#btnBelajar').onclick=()=>{matIdx=0;renderMateri();show('screen-materi');};
+$('#btnPetunjuk').onclick=()=>show('screen-help');
+$('#btnReset').onclick=()=>{
+  if(confirm('Hapus semua kemajuan permainan dan mulai dari awal?')){
+    state=null;try{sessionStorage.removeItem(SS_KEY);}catch(e){}
+    $('#inName').value='';refreshStartButtons();
+  }
+};
+$('#inName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+
+/* ======================= MATERI ======================= */
+const MATERI=[
+ {k:'atas',judul:'Di atas',teks:'Benda berada pada bagian atas benda lain.',contoh:'Contoh: Buku di atas meja.'},
+ {k:'bawah',judul:'Di bawah',teks:'Benda berada pada bagian yang lebih rendah.',contoh:'Contoh: Sepatu di bawah rak.'},
+ {k:'depan',judul:'Di depan',teks:'Benda berada di bagian depan benda lain, lebih dekat ke kita.',contoh:'Contoh: Bola di depan kotak.'},
+ {k:'belakang',judul:'Di belakang',teks:'Benda berada di bagian belakang benda lain, tertutup sebagian oleh benda itu.',contoh:'Contoh: Bola di belakang kotak.'},
+ {k:'kanan',judul:'Di sebelah kanan',teks:'Benda berada di sisi kanan benda lain.',contoh:'Contoh: Bola di sebelah kanan kotak.',note:'Kanan dan kiri dilihat dari sudut pandang kamu yang melihat layar.'},
+ {k:'kiri',judul:'Di sebelah kiri',teks:'Benda berada di sisi kiri benda lain.',contoh:'Contoh: Bola di sebelah kiri kotak.',note:'Kanan dan kiri dilihat dari sudut pandang kamu yang melihat layar.'},
+ {k:'dalam',judul:'Di dalam',teks:'Benda berada di bagian dalam suatu tempat.',contoh:'Contoh: Pakaian di dalam lemari.'},
+ {k:'luar',judul:'Di luar',teks:'Benda berada di bagian luar suatu tempat.',contoh:'Contoh: Bola di luar kotak.'},
+ {k:'antara',judul:'Di antara',teks:'Benda berada di tengah-tengah dua benda lain.',contoh:'Contoh: Bola di antara dua kotak.'},
+ {k:'samping',judul:'Di samping',teks:'Benda berada di sisi benda lain, bersebelahan.',contoh:'Contoh: Bola di samping kotak.'}
+];
+let matIdx=0;
+function illus(t){
+  const boxS=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#d9a066" stroke="#9a6a35" stroke-width="3"/><rect x="${x}" y="${y}" width="${w}" height="10" rx="5" fill="#e9bd85"/>`;
+  const ball=(x,y,r=16)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#ff7a45" stroke="#c4491c" stroke-width="2.5"/><path d="M${x-r*.5} ${y-r*.35}q${r*.4} ${-r*.4} ${r*.9} ${-r*.2}" stroke="#ffd0b8" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  const table=(x,y,w)=>`<rect x="${x}" y="${y}" width="${w}" height="10" rx="4" fill="#d9a066" stroke="#9a6a35" stroke-width="2.5"/><rect x="${x+8}" y="${y+10}" width="9" height="${150-y-10}" fill="#b27639"/><rect x="${x+w-17}" y="${y+10}" width="9" height="${150-y-10}" fill="#b27639"/>`;
+  const arrow=(x1,x2)=>`<path d="M${x1} 118H${x2}" stroke="#2e9b43" stroke-width="5" stroke-linecap="round"/><path d="M${x2} 118l${x2>x1?-10:10} -8M${x2} 118l${x2>x1?-10:10} 8" stroke="#2e9b43" stroke-width="5" stroke-linecap="round"/>`;
+  const eye=`<text x="150" y="176" text-anchor="middle" font-size="14" fill="#5b5a7a" font-family="sans-serif">kamu melihat dari sini ↑</text>`;
+  let g='';
+  switch(t){
+    case 'atas': g=table(80,100,140)+ball(150,84); break;
+    case 'bawah': g=table(80,100,140)+ball(150,134); break;
+    case 'depan': g=boxS(100,80,100,70)+ball(150,146,24)+eye; break;
+    case 'belakang': g=ball(150,76,24)+boxS(100,80,100,70)+eye; break;
+    case 'kanan': g=boxS(50,80,70,70)+ball(220,134)+arrow(135,195)+eye; break;
+    case 'kiri': g=boxS(180,80,70,70)+ball(80,134)+arrow(165,105)+eye; break;
+    case 'dalam': g=boxS(90,70,120,80).replace('#d9a066','#a9743a')+ball(150,116)+`<rect x="90" y="124" width="120" height="26" rx="6" fill="#d9a066" stroke="#9a6a35" stroke-width="3"/>`; break;
+    case 'luar': g=boxS(50,80,100,70)+ball(225,134); break;
+    case 'antara': g=boxS(35,80,60,70)+boxS(205,80,60,70)+ball(150,134); break;
+    case 'samping': g=boxS(100,80,100,70)+ball(228,134)+`<circle cx="72" cy="134" r="16" fill="none" stroke="#2e9b43" stroke-width="3" stroke-dasharray="6 5"/>`; break;
+  }
+  return `<svg viewBox="0 0 300 184" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi ${t}"><rect width="300" height="184" fill="#f3fbff"/><rect y="150" width="300" height="34" fill="#f1dfc2"/>${g}</svg>`;
+}
+function renderMateri(){
+  const m=MATERI[matIdx];
+  $('#matIllus').innerHTML=illus(m.k);
+  $('#matKata').textContent=m.judul;
+  $('#matTeks').textContent=m.teks;
+  $('#matContoh').textContent=m.contoh;
+  const n=$('#matNote');n.textContent=m.note||'';n.style.display=m.note?'block':'none';
+  $('#matCount').textContent=`(${matIdx+1} dari ${MATERI.length})`;
+  $('#matDots').innerHTML=MATERI.map((_,i)=>`<i class="${i===matIdx?'on':''}"></i>`).join('');
+  $('#matNext').disabled=matIdx===MATERI.length-1;
+}
+$('#matPrev').onclick=()=>{if(matIdx>0){matIdx--;renderMateri();}else show('screen-start');};
+$('#matNext').onclick=()=>{if(matIdx<MATERI.length-1){matIdx++;renderMateri();}};
+
+/* ======================= PILIH RUANGAN ======================= */
+function showRooms(){
+  $('#roomsWho').textContent=`${state.name} • Kelas ${state.kelas}`;
+  $('#roomsScore').textContent=totalScore();
+  $('#roomGrid').innerHTML=ROOMS.map((r,i)=>{
+    const d=roomDoneCount(i),fin=d===10;
+    return `<button class="roomcard ${r.cls}" data-room="${i}"><div class="em">${r.em}</div><h3>${r.nama}</h3>
+      <div class="st">${fin?'✔ Selesai':d>0?'Lanjutkan':'Belum dimulai'} • ${d} dari 10 soal • Skor ${roomScore(i)}</div>
+      <div class="mini"><i style="width:${d*10}%"></i></div></button>`;
+  }).join('');
+  const ad=allDone();
+  $('#btnRoomsResult').disabled=!ad;
+  $('#roomsHint').textContent=ad?'Hebat! Semua ruangan sudah selesai. Lihat hasilmu!':`Selesaikan semua ruangan untuk melihat hasil akhir (${totalDone()} dari ${TOTAL_Q} soal).`;
+  show('screen-rooms');
+}
+$('#roomGrid').addEventListener('click',e=>{const b=e.target.closest('[data-room]');if(b)openRoom(+b.dataset.room);});
+$('#btnRoomsHome').onclick=()=>{refreshStartButtons();show('screen-start');};
+$('#btnRoomsLearn').onclick=()=>{matIdx=0;renderMateri();show('screen-materi');};
+$('#btnRoomsResult').onclick=showResult;
+
+/* ======================= PERMAINAN ======================= */
+function openRoom(i){
+  cur.room=i;
+  const u=firstUndone(i);cur.q=u<0?9:u;
+  pending=false;selected=null;justPlaced=-1;
+  show('screen-game');
+  renderGame();
+}
+function placedSvg(q,pop){
+  const s=q.s,x=q.at[0]-30*s,y=q.at[1]-30*s;
+  return `<g transform="translate(${x} ${y}) scale(${s})"><g class="${pop?'pop':''}">${ICONS[q.item]}</g></g>`;
+}
+function renderScene(){
+  const r=ROOMS[cur.room],rs=state.rooms[cur.room],sc=r.scene();
+  let placed='';
+  r.qs.forEach((q,i)=>{if(rs.done[i])placed+=placedSvg(q,i===justPlaced);});
+  $('#scene').innerHTML=`<g>${sc.bg}</g><g>${placed}</g><g>${sc.fg}</g><g id="gGuide"></g>`;
+}
+function renderItems(){
+  const r=ROOMS[cur.room],rs=state.rooms[cur.room];
+  const list=r.qs.map((q,i)=>({q,i})).filter(o=>!rs.done[o.i]);
+  /* urutan panel mengikuti daftar benda ruangan agar tidak membocorkan urutan soal */
+  const ordered=r.items.map(id=>list.find(o=>o.q.item===id)).filter(Boolean);
+  $('#items').innerHTML=ordered.length?ordered.map(o=>`<div class="item" tabindex="0" role="button" data-id="${o.q.item}" aria-label="${esc(NAMA[o.q.item])}"><svg viewBox="0 0 60 60">${ICONS[o.q.item]}</svg><span>${esc(NAMA[o.q.item])}</span></div>`).join(''):`<div class="empty">Semua benda sudah rapi! 🎉</div>`;
+}
+function instrText(q){return 'AYO, '+q.text.replace(/\.$/,'').toUpperCase()+'!';}
+function renderHeader(){
+  const r=ROOMS[cur.room];
+  $('#roomTitle').textContent=r.em+' '+r.nama;
+  $('#whoName').textContent=state.name+' • Kelas '+state.kelas;
+  $('#scoreVal').textContent=totalScore();
+  const d=totalDone();
+  $('#progText').textContent=`${d} dari ${TOTAL_Q} soal`;
+  $('#progBar').style.width=(d/TOTAL_Q*100)+'%';
+  $('#btnSound').textContent=muted?'🔇':'🔊';
+}
+function renderGame(){
+  renderHeader();renderScene();renderItems();
+  const r=ROOMS[cur.room],rs=state.rooms[cur.room];
+  const roomFinished=roomDoneCount(cur.room)===10;
+  if(roomFinished&&!pending){
+    $('#instruction').textContent='🎉 Ruangan ini sudah rapi! Pilih ruangan lain ya.';
+    setFeedback('','');
+    $('#btnNext').classList.remove('hidden');$('#btnNext').textContent=allDone()?'Lihat Hasil 🏆':'Pilih Ruangan ➜';
+    $('#btnHint').classList.add('hidden');
+  }else{
+    $('#instruction').textContent=instrText(r.qs[cur.q]);
+    $('#btnHint').classList.toggle('hidden',pending);
+    if(!pending){$('#btnNext').classList.add('hidden');setFeedback('info',`Soal ${cur.q+1} dari 10. Seret benda yang tepat ke tempat tujuan, atau ketuk benda lalu ketuk tempatnya.`);}
+  }
+  buildDir();
+}
+function setFeedback(cls,txt){const f=$('#feedback');f.innerHTML=txt?`<span class="fb ${cls}">${esc(txt)}</span>`:'';}
+
+/* ----- panduan visual ----- */
+function drawGuide(opt){
+  const g=$('#gGuide');if(!g)return;
+  const q=ROOMS[cur.room].qs[cur.q];let h='';
+  if(opt.zone)q.zones.forEach(z=>{h+=`<rect class="gzone gpulse" x="${z[0]}" y="${z[1]}" width="${z[2]}" height="${z[3]}" rx="12"/>`;});
+  if(opt.ref){const b=q.ref;h+=`<rect class="gref ${opt.pulse?'gpulse':''}" x="${b[0]-4}" y="${b[1]-4}" width="${b[2]+8}" height="${b[3]+8}" rx="12"/>`;}
+  g.innerHTML=h;
+}
+function clearGuide(){clearTimeout(guideTimer);const g=$('#gGuide');if(g)g.innerHTML='';}
+function timedGuide(opt,ms=4500){drawGuide(opt);clearTimeout(guideTimer);guideTimer=setTimeout(clearGuide,ms);}
+
+/* ----- penilaian posisi (fungsi murni, mudah diuji) ----- */
+function judge(ri,qi,itemId,x,y){
+  const q=ROOMS[ri].qs[qi];
+  if(itemId!==q.item)return {ok:false,why:'item'};
+  const hit=q.zones.some(z=>x>=z[0]&&x<=z[0]+z[2]&&y>=z[1]&&y<=z[1]+z[3]);
+  return {ok:hit,why:hit?'':'pos'};
+}
+function award(ri,qi){
+  const rs=state.rooms[ri];
+  if(rs.done[qi])return 0;                 /* anti skor ganda */
+  rs.done[qi]=true;
+  rs.firstTry[qi]=rs.wrong[qi]===0;
+  const pts=(CONFIG.POIN_HANYA_PERCOBAAN_PERTAMA&&rs.wrong[qi]>0)?0:10;
+  rs.pts[qi]=pts;
+  return pts;
+}
+function handleDrop(itemId,x,y){
+  selected=null;$$('.item.sel').forEach(e=>e.classList.remove('sel'));
+  if(pending)return;
+  const rs=state.rooms[cur.room],qi=cur.q,q=ROOMS[cur.room].qs[qi];
+  if(rs.done[qi])return;
+  const res=judge(cur.room,qi,itemId,x,y);
+  if(res.ok){
+    const pts=award(cur.room,qi);
+    pending=true;justPlaced=qi;save();
+    renderHeader();renderScene();renderItems();clearGuide();
+    $('#btnHint').classList.add('hidden');
+    setFeedback('ok','Hebat! Posisi benda sudah benar!'+(pts?` (+${pts} poin ⭐)`:''));
+    confetti();tone([523,659,784,1047]);
+    const last=roomDoneCount(cur.room)===10;
+    $('#btnNext').textContent=last?'Selesai Ruangan ✔':'Soal Berikutnya ➜';
+    $('#btnNext').classList.remove('hidden');
+    $('#btnNext').focus({preventScroll:true});
+  }else{
+    rs.wrong[qi]++;save();
+    const n=rs.wrong[qi];
+    const el=document.querySelector(`.item[data-id="${itemId}"]`);
+    if(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+    tone([310,240],.16,'triangle',.12);
+    let msg='Belum tepat, yuk coba lagi! ';
+    if(res.why==='item'){
+      msg+=`Benda yang diminta adalah ${NAMA[q.item].toLowerCase()}. `+RULE[q.rule];
+      if(n>=2)timedGuide({ref:true,zone:n>=3,pulse:true});
+    }else if(n===1){
+      msg+=RULE[q.rule];
+    }else if(n===2){
+      msg+=`Benda acuannya adalah ${q.refName}. Lihat bagian yang berkedip. `+RULE[q.rule];
+      timedGuide({ref:true,pulse:true});
+    }else{
+      msg+=`Letakkan di area hijau yang berkedip, dekat ${q.refName}.`;
+      timedGuide({ref:true,zone:true,pulse:true},6000);
+    }
+    setFeedback('bad',msg);
+  }
+}
+$('#btnHint').onclick=()=>{
+  if(pending)return;
+  const q=ROOMS[cur.room].qs[cur.q];
+  setFeedback('info',`${RULE[q.rule]} Benda acuannya: ${q.refName}.`);
+  timedGuide({ref:true,pulse:true},3500);
+};
+$('#btnNext').onclick=()=>{
+  const roomFinished=roomDoneCount(cur.room)===10;
+  pending=false;justPlaced=-1;selected=null;
+  if(roomFinished){ if(allDone())showResult();else showRooms();return; }
+  const u=firstUndone(cur.room);
+  if(u<0){ if(allDone())showResult();else showRooms();return; }
+  cur.q=u;renderGame();
+};
+$('#btnToRooms').onclick=()=>{pending=false;justPlaced=-1;clearGuide();showRooms();};
+
+/* ----- koordinat ----- */
+function toSvg(cx,cy){
+  const svg=$('#scene'),r=svg.getBoundingClientRect();
+  if(cx<r.left||cx>r.right||cy<r.top||cy>r.bottom)return null;
+  const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;
+  const m=svg.getScreenCTM();if(!m)return null;
+  const p=pt.matrixTransform(m.inverse());
+  if(p.x<0||p.x>960||p.y<0||p.y>520)return null;
+  return p;
+}
+
+/* ----- seret dan lepas (mouse, sentuh, pena) ----- */
+function makeGhost(id){
+  const g=document.createElement('div');g.className='ghost';
+  g.innerHTML=`<svg viewBox="0 0 60 60">${ICONS[id]}</svg>`;document.body.appendChild(g);return g;
+}
+function toggleSelect(id,el){
+  if(selected===id){selected=null;el.classList.remove('sel');setFeedback('info','Pilihan dibatalkan.');return;}
+  selected=id;$$('.item.sel').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');
+  setFeedback('info',`${NAMA[id]} dipilih. Sekarang ketuk tempat tujuan pada gambar ruangan.`);
+}
+function startDrag(el,e){
+  const id=el.dataset.id,sx=e.clientX,sy=e.clientY,off=e.pointerType==='touch'?-44:0;
+  let moved=false,ghost=null;
+  try{el.setPointerCapture(e.pointerId);}catch(_){}
+  const move=ev=>{
+    if(!moved){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<8)return;
+      moved=true;ghost=makeGhost(id);el.classList.add('dragging');
+      selected=null;$$('.item.sel').forEach(x=>x.classList.remove('sel'));
+      drawGuide({ref:true});}
+    ghost.style.left=ev.clientX+'px';ghost.style.top=(ev.clientY+off)+'px';
+  };
+  const end=ev=>{
+    el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel);
+    try{el.releasePointerCapture(ev.pointerId);}catch(_){}
+    el.classList.remove('dragging');if(ghost)ghost.remove();clearGuide();
+  };
+  const up=ev=>{
+    end(ev);
+    if(moved){
+      suppress=true;setTimeout(()=>{suppress=false;},120);
+      const p=toSvg(ev.clientX,ev.clientY+off);
+      if(!p)setFeedback('info','Letakkan benda di dalam gambar ruangan ya.');
+      else handleDrop(id,p.x,p.y);
+    }else toggleSelect(id,el);
+  };
+  const cancel=ev=>{end(ev);};
+  el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);
+}
+$('#items').addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.item');if(!el)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  if(pending){setFeedback('info','Tekan tombol hijau di bawah dulu ya.');return;}
+  e.preventDefault();startDrag(el,e);
+});
+$('#items').addEventListener('keydown',e=>{
+  const el=e.target.closest('.item');if(!el)return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!pending)toggleSelect(el.dataset.id,el);}
+});
+$('#scene').addEventListener('click',e=>{
+  if(suppress||pending||!selected)return;
+  const p=toSvg(e.clientX,e.clientY);if(p)handleDrop(selected,p.x,p.y);
+});
+
+/* ----- navigasi arah ----- */
+const DIRS=[['atas','↑ Atas'],['bawah','↓ Bawah'],['kiri','← Kiri'],['kanan','→ Kanan'],['depan','⇙ Depan'],['belakang','⇗ Belakang'],['dalam','⤵ Dalam'],['luar','⤴ Luar']];
+function buildDir(){
+  $('#dirBtns').innerHTML=DIRS.map(d=>`<button data-k="${d[0]}">${d[1]}</button>`).join('');
+}
+$('#dirBtns').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  $$('#dirBtns button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const m=MATERI.find(x=>x.k===b.dataset.k);
+  $('#dirInfo').innerHTML=illus(m.k)+`<div><b>${esc(m.judul)}</b>: ${esc(m.teks)}<br>${esc(m.contoh)}${m.note?'<br><i>'+esc(m.note)+'</i>':''}</div>`;
+});
+
+/* ----- suara dan konfeti ----- */
+let actx=null;
+function tone(freqs,dur=.12,type='sine',vol=.15){
+  if(muted)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+    const t=actx.currentTime;
+    freqs.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.value=f;
+      g.gain.setValueAtTime(vol,t+i*dur);g.gain.exponentialRampToValueAtTime(.001,t+i*dur+dur*.95);
+      o.connect(g);g.connect(actx.destination);o.start(t+i*dur);o.stop(t+i*dur+dur);});
+  }catch(e){}
+}
+$('#btnSound').onclick=()=>{muted=!muted;try{sessionStorage.setItem(SS_MUTE,muted?'1':'0');}catch(e){}$('#btnSound').textContent=muted?'🔇':'🔊';};
+function confetti(){
+  const fx=$('#fx'),em=['⭐','🎉','✨','🌟'];
+  for(let i=0;i<18;i++){
+    const s=document.createElement('span');s.className='conf';s.textContent=em[i%em.length];
+    s.style.left=(Math.random()*92)+'%';s.style.animationDelay=(Math.random()*.4)+'s';
+    fx.appendChild(s);setTimeout(()=>s.remove(),2200);
+  }
+}
+
+/* ======================= HASIL AKHIR ======================= */
+function kategori(p){return p>=90?'Hebat Sekali!':p>=75?'Bagus!':p>=60?'Terus Berlatih!':'Tetap Semangat, Ayo Berlatih Lagi!';}
+function apresiasi(p){
+  if(p>=90)return 'Luar biasa! Kamu sangat paham posisi benda. Terus pertahankan ya!';
+  if(p>=75)return 'Kerja bagus! Kamu sudah paham sebagian besar posisi benda.';
+  if(p>=60)return 'Kamu sudah berusaha dengan baik. Ayo berlatih lagi supaya makin mahir!';
+  return 'Jangan menyerah! Setiap latihan membuatmu makin pintar. Yuk, baca materi lalu main lagi!';
+}
+const fmtNum=(n,d=1)=>Number(n).toLocaleString('id-ID',{maximumFractionDigits:d});
+function fmtWaktu(ts){
+  try{return new Date(ts).toLocaleString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return new Date(ts).toString();}
+}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtIso(ts){const d=new Date(ts);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function buildReport(){
+  const total=totalScore(),pct=total/MAX_SKOR*100;
+  const rooms=ROOMS.map((r,i)=>{
+    const rs=state.rooms[i];
+    return {nama:r.nama,skor:roomScore(i),benar:rs.done.filter(Boolean).length,benarPertama:rs.firstTry.filter(v=>v===true).length};
+  });
+  const benar=totalDone();
+  const benarPertama=rooms.reduce((a,r)=>a+r.benarPertama,0);
+  const rekap=[];
+  ROOMS.forEach((r,i)=>{r.qs.forEach((q,j)=>{const rs=state.rooms[i];
+    rekap.push({ruangan:r.nama,no:j+1,soal:q.text,status:rs.done[j]?'Benar':'Belum benar',poin:rs.pts[j],salahSebelumBenar:rs.wrong[j],percobaanPertama:rs.firstTry[j]===true});});});
+  return {id:state.id,nama:state.name,kelas:state.kelas,waktu:fmtIso(state.finishedAt),waktuISO:new Date(state.finishedAt).toISOString(),
+    skorTotal:total,skorMaks:MAX_SKOR,persen:Math.round(pct*10)/10,kategori:kategori(pct),jumlahBenar:benar,
+    belumBenarPertama:TOTAL_Q-benarPertama,benarPertama,
+    skorRuangTamu:rooms[0].skor,skorKamarTidur:rooms[1].skor,skorKamarMandi:rooms[2].skor,skorDapur:rooms[3].skor,
+    ruangan:rooms,rekap};
+}
+function showResult(){
+  if(!allDone()){showRooms();return;}
+  if(!state.finishedAt){state.finishedAt=Date.now();save();}
+  const R=buildReport();
+  $('#resultCard').innerHTML=`
+   <div class="hasil-head"><h2>🏆 Hasil Permainan</h2>
+     <div class="kategori">${esc(R.kategori)}</div>
+     <div class="big">${esc(fmtNum(R.persen))}%</div>
+     <div>${esc(apresiasi(R.persen))}</div></div>
+   <div class="kv">
+     <div><b>Nama:</b> ${esc(R.nama)}</div><div><b>Kelas:</b> ${esc(R.kelas)}</div>
+     <div><b>Waktu:</b> ${esc(fmtWaktu(state.finishedAt))}</div><div><b>Skor:</b> ${R.skorTotal} dari ${R.skorMaks}</div>
+     <div><b>Jawaban benar:</b> ${R.jumlahBenar} dari ${TOTAL_Q}</div>
+     <div><b>Belum benar pada percobaan pertama:</b> ${R.belumBenarPertama} soal</div>
+   </div>
+   <table class="t"><thead><tr><th>Ruangan</th><th>Skor</th><th>Benar</th><th>Benar percobaan pertama</th></tr></thead><tbody>
+   ${R.ruangan.map(r=>`<tr><td>${esc(r.nama)}</td><td>${r.skor} / 100</td><td>${r.benar} / 10</td><td>${r.benarPertama} / 10</td></tr>`).join('')}
+   </tbody></table>
+   <div class="noprint">
+     <div class="btnrow">
+       <button class="btn green" id="btnSend" ${state.sent?'disabled':''}>${state.sent?'✔ Nilai sudah dikirim':'📤 Kirim Nilai ke Guru'}</button>
+       <button class="btn orange" id="btnCsv">⬇ Unduh Hasil</button>
+       <button class="btn" id="btnPrint">🖨 Cetak / Simpan PDF</button>
+       <button class="btn pink" id="btnAgain">🔄 Main Lagi</button>
+     </div>
+     <div id="sendStatus" class="status" role="status" aria-live="polite"></div>
+     <div style="margin-top:12px"><button class="linkbtn" id="btnBackRooms">⬅ Kembali ke pilihan ruangan</button></div>
+   </div>`;
+  $('#btnSend').onclick=sendScore;
+  $('#btnCsv').onclick=downloadCsv;
+  $('#btnPrint').onclick=()=>window.print();
+  $('#btnAgain').onclick=()=>{
+    if(!confirm('Main lagi dari awal? Hasil sebelumnya akan dihapus dari layar ini (unduh dulu jika perlu).'))return;
+    const n=state.name,k=state.kelas;state=newState(n,k);save();showRooms();
+  };
+  $('#btnBackRooms').onclick=showRooms;
+  show('screen-result');
+}
+function status(cls,txt){const s=$('#sendStatus');s.className='status show '+cls;s.textContent=txt;}
+
+/* ----- CSV ----- */
+function csvCell(v){
+  v=String(v==null?'':v);
+  if(/^[=+\-@\t\r]/.test(v))v="'"+v;
+  if(/[";\n\r]/.test(v))v='"'+v.replace(/"/g,'""')+'"';
+  return v;
+}
+function buildCsv(R){
+  const L=[];const row=a=>L.push(a.map(csvCell).join(';'));
+  row(['LAPORAN NILAI - PETUALANGAN MENATA RUMAH (Matematika Kelas II: Posisi Benda)']);
+  row(['Nama',R.nama]);row(['Kelas',R.kelas]);row(['Tanggal dan waktu',R.waktu]);
+  row(['Skor total',R.skorTotal]);row(['Skor maksimal',R.skorMaks]);row(['Persentase nilai (%)',R.persen]);
+  row(['Kategori',R.kategori]);row(['Jumlah jawaban benar',R.jumlahBenar]);
+  row(['Benar pada percobaan pertama',R.benarPertama]);row(['Belum benar pada percobaan pertama',R.belumBenarPertama]);
+  L.push('');
+  row(['Hasil per ruangan']);row(['Ruangan','Skor','Soal benar','Benar percobaan pertama']);
+  R.ruangan.forEach(r=>row([r.nama,r.skor,r.benar,r.benarPertama]));
+  L.push('');
+  row(['Rekap soal']);row(['Ruangan','No','Soal','Status','Poin','Salah sebelum benar','Benar percobaan pertama']);
+  R.rekap.forEach(r=>row([r.ruangan,r.no,r.soal,r.status,r.poin,r.salahSebelumBenar,r.percobaanPertama?'Ya':'Tidak']));
+  return '\ufeff'+L.join('\r\n');
+}
+function downloadCsv(){
+  const R=buildReport(),blob=new Blob([buildCsv(R)],{type:'text/csv;charset=utf-8'});
+  const safe=R.nama.replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'_')||'murid';
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`hasil_${safe}_${R.waktu.slice(0,10)}.csv`;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+  status('info','Berkas hasil (CSV) sudah diunduh. Serahkan berkas ini kepada gurumu.');
+}
+
+/* ----- kirim ke guru ----- */
+let sending=false;
+async function sendScore(){
+  if(sending||state.sent)return;
+  if(!CONFIG.ENDPOINT_URL){
+    status('bad','Pengiriman daring belum diatur oleh guru, jadi nilai BELUM terkirim. Tekan "Unduh Hasil" lalu serahkan berkas CSV kepada guru.');return;
+  }
+  if(navigator.onLine===false){
+    status('bad','Tidak ada koneksi internet, nilai BELUM terkirim. Coba lagi saat tersambung, atau tekan "Unduh Hasil".');return;
+  }
+  sending=true;$('#btnSend').disabled=true;status('info','Sedang mengirim nilai…');
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),CONFIG.KIRIM_TIMEOUT_MS);
+  try{
+    const res=await fetch(CONFIG.ENDPOINT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(buildReport()),signal:ctl.signal,redirect:'follow'});
+    clearTimeout(to);
+    if(!res.ok)throw new Error('Server menjawab kode '+res.status);
+    let data=null;try{data=await res.json();}catch(e){}
+    if(data&&(data.status==='ok'||data.success===true)){
+      state.sent=true;save();status('ok','Nilai berhasil dikirim ✔');$('#btnSend').textContent='✔ Nilai sudah dikirim';
+    }else throw new Error('Server tidak memberi konfirmasi berhasil');
+  }catch(err){
+    clearTimeout(to);
+    $('#btnSend').disabled=false;
+    status('bad','Nilai BELUM terkirim ('+(err.name==='AbortError'?'waktu habis':err.message)+'). Coba lagi, atau tekan "Unduh Hasil" lalu serahkan berkas CSV kepada guru.');
+  }finally{sending=false;}
+}
+
+/* ======================= INISIALISASI ======================= */
+(function init(){
+  try{muted=sessionStorage.getItem(SS_MUTE)==='1';}catch(e){}
+  state=load();
+  refreshStartButtons();
+  window.__PBG={ROOMS,ICONS,judge,NAMA,buildReport,buildCsv,get state(){return state;},set state(v){state=v;},newState,award,totalScore,CONFIG,MATERI,illus};
+})();
+</script>
+</body>
+</html>
